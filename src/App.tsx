@@ -3,7 +3,14 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import SplashScreen from "./pages/SplashScreen";
+import LoginScreen from "./pages/LoginScreen";
+import RegisterScreen from "./pages/RegisterScreen";
+import HomeScreen from "./pages/HomeScreen";
+import AddServiceScreen from "./pages/AddServiceScreen";
+import InsightsScreen from "./pages/InsightsScreen";
+import ChatScreen from "./pages/ChatScreen";
+import ProfileScreen from "./pages/ProfileScreen";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -14,11 +21,19 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <div className="mx-auto max-w-md min-h-screen bg-background">
+          <Routes>
+            <Route path="/" element={<SplashScreen />} />
+            <Route path="/login" element={<LoginScreen />} />
+            <Route path="/register" element={<RegisterScreen />} />
+            <Route path="/home" element={<HomeScreen />} />
+            <Route path="/add-service" element={<AddServiceScreen />} />
+            <Route path="/insights" element={<InsightsScreen />} />
+            <Route path="/chat" element={<ChatScreen />} />
+            <Route path="/profile" element={<ProfileScreen />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
