@@ -1,5 +1,6 @@
 import { MapPin, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import StarRating from "@/components/StarRating";
 
 interface ServiceCardProps {
   name: string;
@@ -7,10 +8,12 @@ interface ServiceCardProps {
   avatar: string;
   service: string;
   price: number;
+  rating?: number;
+  reviewCount?: number;
   onViewProfile?: () => void;
 }
 
-const ServiceCard = ({ name, college, avatar, service, price, onViewProfile }: ServiceCardProps) => (
+const ServiceCard = ({ name, college, avatar, service, price, rating, reviewCount, onViewProfile }: ServiceCardProps) => (
   <div className="rounded-xl bg-card p-4 card-shadow animate-fade-in">
     <div className="flex items-start gap-3">
       <img src={avatar} alt={name} className="h-11 w-11 rounded-full object-cover bg-muted" />
@@ -25,10 +28,13 @@ const ServiceCard = ({ name, college, avatar, service, price, onViewProfile }: S
         <span className="text-sm font-bold text-primary">{price}</span>
       </div>
     </div>
-    <div className="mt-3">
+    <div className="mt-3 flex items-center justify-between">
       <span className="inline-block rounded-lg bg-accent px-2.5 py-1 text-xs font-medium text-accent-foreground">
         {service}
       </span>
+      {rating !== undefined && (
+        <StarRating rating={rating} size={12} reviewCount={reviewCount} />
+      )}
     </div>
     <Button
       variant="outline"
