@@ -69,6 +69,8 @@ const HomeScreen = () => {
               avatar={service.avatar}
               service={service.service}
               price={service.price}
+              rating={service.rating}
+              reviewCount={service.reviewCount}
               onViewProfile={() => navigate("/profile")}
             />
           ))}

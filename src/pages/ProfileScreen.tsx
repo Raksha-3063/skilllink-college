@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   MapPin,
   GraduationCap,
@@ -6,13 +7,18 @@ import {
   Edit,
   Plus,
   MessageCircle,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
-import { mockProfile } from "@/data/mockData";
+import StarRating from "@/components/StarRating";
+import { mockProfile, mockReviews } from "@/data/mockData";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 
 const ProfileScreen = () => {
   const p = mockProfile;
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -124,7 +130,124 @@ const ProfileScreen = () => {
         </div>
       </Section>
 
+      {/* Reviews & Ratings */}
+      <Section
+        title="Reviews & Ratings"
+        action={
+          <button
+            onClick={() => setShowReviewModal(true)}
+            className="flex items-center gap-1 text-xs font-semibold text-primary"
+          >
+            <Plus size={14} /> Write Review
+          </button>
+        }
+      >
+        {/* Summary */}
+        <div className="mb-4 flex items-center gap-3 rounded-xl bg-primary-soft p-3">
+          <div className="text-center">
+            <span className="text-2xl font-bold text-foreground">{p.rating}</span>
+            <div className="mt-0.5">
+              <StarRating rating={p.rating} size={14} showValue={false} />
+            </div>
+          </div>
+          <div className="h-8 w-px bg-border" />
+          <p className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">{p.reviewCount}</span> Reviews
+          </p>
+        </div>
+
+        {/* Review Cards */}
+        <div className="flex flex-col gap-3">
+          {mockReviews.map((review) => (
+            <div key={review.id} className="rounded-xl border border-border p-3 animate-fade-in">
+              <div className="flex items-center gap-2.5 mb-2">
+                <img
+                  src={review.avatar}
+                  alt={review.name}
+                  className="h-9 w-9 rounded-full object-cover bg-muted"
+                />
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-sm font-semibold text-foreground truncate">{review.name}</h4>
+                  <p className="text-[11px] text-muted-foreground">{review.college}</p>
+                </div>
+                <span className="text-[11px] text-muted-foreground">{review.date}</span>
+              </div>
+              <StarRating rating={review.rating} size={12} showValue={false} />
+              <p className="mt-1.5 text-xs text-foreground leading-relaxed">{review.comment}</p>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* Review Modal */}
+      {showReviewModal && (
+        <ReviewModal onClose={() => setShowReviewModal(false)} />
+      )}
+
       <BottomNav />
+    </div>
+  );
+};
+
+const ReviewModal = ({ onClose }: { onClose: () => void }) => {
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+
+  const handleSubmit = () => {
+    if (rating === 0) {
+      toast.error("Please select a rating");
+      return;
+    }
+    toast.success("Review submitted!");
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40">
+      <div className="w-full max-w-md animate-slide-up rounded-t-2xl bg-card p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-base font-bold text-foreground">Write a Review</h3>
+          <button onClick={onClose} className="text-sm font-medium text-muted-foreground">
+            Cancel
+          </button>
+        </div>
+
+        {/* Star selector */}
+        <div className="mb-4">
+          <p className="mb-2 text-sm font-medium text-foreground">Your Rating</p>
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button key={star} onClick={() => setRating(star)}>
+                <Star
+                  size={28}
+                  className={
+                    star <= rating
+                      ? "fill-star text-star"
+                      : "text-border"
+                  }
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Comment */}
+        <div className="mb-4">
+          <p className="mb-1.5 text-sm font-medium text-foreground">Your Review</p>
+          <Textarea
+            placeholder="Share your experience... (max 200 characters)"
+            maxLength={200}
+            className="min-h-[80px] rounded-xl resize-none"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+          <p className="mt-1 text-right text-[11px] text-muted-foreground">{comment.length}/200</p>
+        </div>
+
+        <Button className="h-11 w-full rounded-xl font-semibold" onClick={handleSubmit}>
+          Submit Review
+        </Button>
+      </div>
     </div>
   );
 };

@@ -1,10 +1,10 @@
 export const mockServices = [
-  { id: 1, name: "Priya Sharma", college: "IIT Delhi", avatar: "https://i.pravatar.cc/150?img=1", service: "UI/UX Design", price: 300, description: "Clean Figma designs for apps & websites" },
-  { id: 2, name: "Rahul Verma", college: "BITS Pilani", avatar: "https://i.pravatar.cc/150?img=3", service: "DSA Tutoring", price: 200, description: "1-on-1 DSA coaching for placements" },
-  { id: 3, name: "Ananya Gupta", college: "NIT Trichy", avatar: "https://i.pravatar.cc/150?img=5", service: "PPT Design", price: 150, description: "Professional presentation design" },
-  { id: 4, name: "Karan Singh", college: "VIT Vellore", avatar: "https://i.pravatar.cc/150?img=8", service: "Web Development", price: 500, description: "Full stack web apps in React + Node" },
-  { id: 5, name: "Sneha Patel", college: "IIIT Hyderabad", avatar: "https://i.pravatar.cc/150?img=9", service: "Resume Review", price: 100, description: "ATS-friendly resume optimization" },
-  { id: 6, name: "Arjun Das", college: "DTU", avatar: "https://i.pravatar.cc/150?img=11", service: "Python Tutoring", price: 250, description: "Beginner to advanced Python coaching" },
+  { id: 1, name: "Priya Sharma", college: "IIT Delhi", avatar: "https://i.pravatar.cc/150?img=1", service: "UI/UX Design", price: 300, description: "Clean Figma designs for apps & websites", rating: 4.8, reviewCount: 23 },
+  { id: 2, name: "Rahul Verma", college: "BITS Pilani", avatar: "https://i.pravatar.cc/150?img=3", service: "DSA Tutoring", price: 200, description: "1-on-1 DSA coaching for placements", rating: 4.5, reviewCount: 12 },
+  { id: 3, name: "Ananya Gupta", college: "NIT Trichy", avatar: "https://i.pravatar.cc/150?img=5", service: "PPT Design", price: 150, description: "Professional presentation design", rating: 4.2, reviewCount: 8 },
+  { id: 4, name: "Karan Singh", college: "VIT Vellore", avatar: "https://i.pravatar.cc/150?img=8", service: "Web Development", price: 500, description: "Full stack web apps in React + Node", rating: 4.9, reviewCount: 31 },
+  { id: 5, name: "Sneha Patel", college: "IIIT Hyderabad", avatar: "https://i.pravatar.cc/150?img=9", service: "Resume Review", price: 100, description: "ATS-friendly resume optimization", rating: 4.6, reviewCount: 15 },
+  { id: 6, name: "Arjun Das", college: "DTU", avatar: "https://i.pravatar.cc/150?img=11", service: "Python Tutoring", price: 250, description: "Beginner to advanced Python coaching", rating: 4.3, reviewCount: 9 },
 ];
 
 export const mockInsights = [
@@ -73,4 +73,45 @@ export const mockProfile = {
     { title: "Logo Design", description: "Modern minimalist logos for startups", price: 200 },
   ],
   skills: ["Figma", "React", "TypeScript", "Tailwind CSS", "Node.js", "Python"],
+  rating: 4.6,
+  reviewCount: 23,
 };
+
+export const mockReviews = [
+  {
+    id: 1,
+    name: "Rahul Verma",
+    college: "BITS Pilani",
+    avatar: "https://i.pravatar.cc/150?img=3",
+    rating: 5,
+    comment: "Amazing UI designs! Priya delivered my app mockups ahead of schedule. Highly recommend her work.",
+    date: "Feb 10, 2026",
+  },
+  {
+    id: 2,
+    name: "Karan Singh",
+    college: "VIT Vellore",
+    avatar: "https://i.pravatar.cc/150?img=8",
+    rating: 4,
+    comment: "Great frontend work on our club website. Clean code and responsive design. Will hire again!",
+    date: "Jan 28, 2026",
+  },
+  {
+    id: 3,
+    name: "Sneha Patel",
+    college: "IIIT Hyderabad",
+    avatar: "https://i.pravatar.cc/150?img=9",
+    rating: 5,
+    comment: "The logo she designed for our startup was perfect. Very professional and creative.",
+    date: "Jan 15, 2026",
+  },
+  {
+    id: 4,
+    name: "Arjun Das",
+    college: "DTU",
+    avatar: "https://i.pravatar.cc/150?img=11",
+    rating: 4,
+    comment: "Good communication and delivered quality work. Pricing is very fair for students.",
+    date: "Dec 20, 2025",
+  },
+];
