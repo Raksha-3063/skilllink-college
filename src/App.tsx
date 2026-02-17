@@ -11,6 +11,7 @@ import AddServiceScreen from "./pages/AddServiceScreen";
 import InsightsScreen from "./pages/InsightsScreen";
 import ChatScreen from "./pages/ChatScreen";
 import ProfileScreen from "./pages/ProfileScreen";
+import ProfileSetupScreen from "./pages/ProfileSetupScreen";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/" element={<SplashScreen />} />
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/register" element={<RegisterScreen />} />
+            <Route path="/profile-setup" element={<ProfileSetupScreen />} />
             <Route path="/home" element={<HomeScreen />} />
             <Route path="/add-service" element={<AddServiceScreen />} />
             <Route path="/insights" element={<InsightsScreen />} />

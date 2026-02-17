@@ -56,7 +56,7 @@ const RegisterScreen = () => {
 
             <Button
               className="mt-1 h-12 rounded-xl text-base font-semibold"
-              onClick={() => navigate("/home")}
+              onClick={() => navigate("/profile-setup")}
             >
               Create Account
             </Button>
