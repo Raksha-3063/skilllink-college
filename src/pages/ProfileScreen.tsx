@@ -8,6 +8,10 @@ import {
   Plus,
   MessageCircle,
   Star,
+  UserPlus,
+  UserCheck,
+  Users,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
@@ -19,6 +23,24 @@ import { toast } from "sonner";
 const ProfileScreen = () => {
   const p = mockProfile;
   const [showReviewModal, setShowReviewModal] = useState(false);
+
+  const [connectStatus, setConnectStatus] = useState<"none" | "pending" | "connected">("none");
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  const handleConnect = () => {
+    if (connectStatus === "none") {
+      setConnectStatus("pending");
+      toast.success("Connection request sent!");
+    } else if (connectStatus === "pending") {
+      setConnectStatus("none");
+      toast("Connection request withdrawn");
+    }
+  };
+
+  const handleFollow = () => {
+    setIsFollowing(!isFollowing);
+    toast.success(isFollowing ? "Unfollowed" : "Now following!");
+  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -49,6 +71,75 @@ const ProfileScreen = () => {
           </Button>
         </div>
         <p className="mt-2 text-sm text-foreground leading-relaxed">{p.bio}</p>
+
+        {/* Network Stats */}
+        <div className="mt-3 flex items-center gap-4">
+          <button className="text-center">
+            <span className="block text-sm font-bold text-foreground">{p.connections}</span>
+            <span className="text-[11px] text-muted-foreground">Connections</span>
+          </button>
+          <div className="h-6 w-px bg-border" />
+          <button className="text-center">
+            <span className="block text-sm font-bold text-foreground">{p.followers + (isFollowing ? 1 : 0)}</span>
+            <span className="text-[11px] text-muted-foreground">Followers</span>
+          </button>
+          <div className="h-6 w-px bg-border" />
+          <button className="text-center">
+            <span className="block text-sm font-bold text-foreground">{p.following}</span>
+            <span className="text-[11px] text-muted-foreground">Following</span>
+          </button>
+        </div>
+
+        {/* Mutual Connections */}
+        {p.mutualConnections.length > 0 && (
+          <div className="mt-3 flex items-center gap-2">
+            <div className="flex -space-x-2">
+              {p.mutualConnections.slice(0, 3).map((mc, i) => (
+                <img
+                  key={i}
+                  src={mc.avatar}
+                  alt={mc.name}
+                  className="h-6 w-6 rounded-full border-2 border-card object-cover"
+                />
+              ))}
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              {p.mutualConnections[0].name} and {p.mutualConnections.length - 1} other mutual connections
+            </p>
+          </div>
+        )}
+
+        {/* Connect & Follow Buttons */}
+        <div className="mt-3 flex gap-2">
+          <Button
+            onClick={handleConnect}
+            className={`flex-1 h-10 rounded-full gap-1.5 text-sm font-semibold ${
+              connectStatus === "connected"
+                ? "bg-primary/10 text-primary hover:bg-primary/20"
+                : connectStatus === "pending"
+                ? "bg-muted text-muted-foreground hover:bg-muted/80"
+                : ""
+            }`}
+            variant={connectStatus === "none" ? "default" : "outline"}
+          >
+            {connectStatus === "none" && <><UserPlus size={16} /> Connect</>}
+            {connectStatus === "pending" && <><Clock size={16} /> Pending</>}
+            {connectStatus === "connected" && <><UserCheck size={16} /> Connected</>}
+          </Button>
+          <Button
+            onClick={handleFollow}
+            variant={isFollowing ? "outline" : "secondary"}
+            className={`flex-1 h-10 rounded-full gap-1.5 text-sm font-semibold ${
+              isFollowing ? "border-primary text-primary" : ""
+            }`}
+          >
+            {isFollowing ? (
+              <><Users size={16} /> Following</>
+            ) : (
+              <><Plus size={16} /> Follow</>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* About */}
