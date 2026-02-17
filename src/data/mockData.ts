@@ -75,6 +75,14 @@ export const mockProfile = {
   skills: ["Figma", "React", "TypeScript", "Tailwind CSS", "Node.js", "Python"],
   rating: 4.6,
   reviewCount: 23,
+  connections: 120,
+  followers: 340,
+  following: 180,
+  mutualConnections: [
+    { name: "Rahul Verma", avatar: "https://i.pravatar.cc/150?img=3" },
+    { name: "Karan Singh", avatar: "https://i.pravatar.cc/150?img=8" },
+    { name: "Sneha Patel", avatar: "https://i.pravatar.cc/150?img=9" },
+  ],
 };
 
 export const mockReviews = [
