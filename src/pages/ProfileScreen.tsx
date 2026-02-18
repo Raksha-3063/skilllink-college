@@ -12,8 +12,11 @@ import {
   UserCheck,
   Users,
   Clock,
+  TrendingUp,
+  CheckCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import BottomNav from "@/components/BottomNav";
 import StarRating from "@/components/StarRating";
 import { mockProfile, mockReviews } from "@/data/mockData";
@@ -22,10 +25,11 @@ import { toast } from "sonner";
 
 const ProfileScreen = () => {
   const p = mockProfile;
+  const navigate = useNavigate();
   const [showReviewModal, setShowReviewModal] = useState(false);
-
   const [connectStatus, setConnectStatus] = useState<"none" | "pending" | "connected">("none");
   const [isFollowing, setIsFollowing] = useState(false);
+  const [serviceRequests, setServiceRequests] = useState<Record<number, "none" | "requested" | "accepted" | "completed">>({});
 
   const handleConnect = () => {
     if (connectStatus === "none") {
@@ -40,6 +44,21 @@ const ProfileScreen = () => {
   const handleFollow = () => {
     setIsFollowing(!isFollowing);
     toast.success(isFollowing ? "Unfollowed" : "Now following!");
+  };
+
+  const handleRequestService = (idx: number) => {
+    setServiceRequests((prev) => ({ ...prev, [idx]: "requested" }));
+    toast.success("Service requested!");
+    // Simulate acceptance after 1.5s
+    setTimeout(() => {
+      setServiceRequests((prev) => ({ ...prev, [idx]: "accepted" }));
+      toast.success("Service request accepted!");
+    }, 1500);
+  };
+
+  const handleMarkCompleted = (idx: number) => {
+    setServiceRequests((prev) => ({ ...prev, [idx]: "completed" }));
+    setShowReviewModal(true);
   };
 
   return (
@@ -66,9 +85,14 @@ const ProfileScreen = () => {
             </p>
             <p className="text-xs text-muted-foreground">{p.course}</p>
           </div>
-          <Button variant="outline" size="sm" className="rounded-full gap-1.5">
-            <Edit size={14} /> Edit
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={() => navigate("/growth-analytics")}>
+              <TrendingUp size={14} />
+            </Button>
+            <Button variant="outline" size="sm" className="rounded-full gap-1.5">
+              <Edit size={14} /> Edit
+            </Button>
+          </div>
         </div>
         <p className="mt-2 text-sm text-foreground leading-relaxed">{p.bio}</p>
 
@@ -95,12 +119,7 @@ const ProfileScreen = () => {
           <div className="mt-3 flex items-center gap-2">
             <div className="flex -space-x-2">
               {p.mutualConnections.slice(0, 3).map((mc, i) => (
-                <img
-                  key={i}
-                  src={mc.avatar}
-                  alt={mc.name}
-                  className="h-6 w-6 rounded-full border-2 border-card object-cover"
-                />
+                <img key={i} src={mc.avatar} alt={mc.name} className="h-6 w-6 rounded-full border-2 border-card object-cover" />
               ))}
             </div>
             <p className="text-[11px] text-muted-foreground">
@@ -133,11 +152,7 @@ const ProfileScreen = () => {
               isFollowing ? "border-primary text-primary" : ""
             }`}
           >
-            {isFollowing ? (
-              <><Users size={16} /> Following</>
-            ) : (
-              <><Plus size={16} /> Follow</>
-            )}
+            {isFollowing ? <><Users size={16} /> Following</> : <><Plus size={16} /> Follow</>}
           </Button>
         </div>
       </div>
@@ -190,34 +205,58 @@ const ProfileScreen = () => {
       <Section title="Skills">
         <div className="flex flex-wrap gap-2">
           {p.skills.map((skill) => (
-            <span
-              key={skill}
-              className="rounded-full bg-primary-soft px-3 py-1 text-xs font-medium text-accent-foreground"
-            >
+            <span key={skill} className="rounded-full bg-primary-soft px-3 py-1 text-xs font-medium text-accent-foreground">
               {skill}
             </span>
           ))}
         </div>
       </Section>
 
-      {/* Services */}
+      {/* Services with Request Flow */}
       <Section title="Services">
         <div className="flex flex-col gap-3">
-          {p.services.map((svc, i) => (
-            <div key={i} className="rounded-xl border border-border p-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-foreground">{svc.title}</h3>
-                <div className="flex items-center gap-0.5 text-primary font-bold text-sm">
-                  <IndianRupee size={13} />
-                  {svc.price}
+          {p.services.map((svc, i) => {
+            const status = serviceRequests[i] || "none";
+            return (
+              <div key={i} className="rounded-xl border border-border p-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-foreground">{svc.title}</h3>
+                  <div className="flex items-center gap-0.5 text-primary font-bold text-sm">
+                    <IndianRupee size={13} />
+                    {svc.price}
+                  </div>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">{svc.description}</p>
+                <div className="mt-2.5 flex gap-2">
+                  {status === "none" && (
+                    <>
+                      <Button size="sm" className="rounded-lg gap-1.5 text-xs flex-1" onClick={() => handleRequestService(i)}>
+                        Request Service
+                      </Button>
+                      <Button variant="outline" size="sm" className="rounded-lg gap-1.5 text-xs">
+                        <MessageCircle size={14} />
+                      </Button>
+                    </>
+                  )}
+                  {status === "requested" && (
+                    <Button size="sm" variant="secondary" className="rounded-lg text-xs flex-1" disabled>
+                      <Clock size={14} className="mr-1.5" /> Requested
+                    </Button>
+                  )}
+                  {status === "accepted" && (
+                    <Button size="sm" className="rounded-lg gap-1.5 text-xs flex-1 bg-success hover:bg-success/90" onClick={() => handleMarkCompleted(i)}>
+                      <CheckCircle size={14} /> Mark as Completed
+                    </Button>
+                  )}
+                  {status === "completed" && (
+                    <Button size="sm" variant="outline" className="rounded-lg text-xs flex-1 text-success border-success" disabled>
+                      <CheckCircle size={14} className="mr-1.5" /> Completed
+                    </Button>
+                  )}
                 </div>
               </div>
-              <p className="mt-1 text-xs text-muted-foreground">{svc.description}</p>
-              <Button size="sm" className="mt-2.5 rounded-lg gap-1.5 text-xs">
-                <MessageCircle size={14} /> Contact
-              </Button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </Section>
 
@@ -225,15 +264,11 @@ const ProfileScreen = () => {
       <Section
         title="Reviews & Ratings"
         action={
-          <button
-            onClick={() => setShowReviewModal(true)}
-            className="flex items-center gap-1 text-xs font-semibold text-primary"
-          >
+          <button onClick={() => setShowReviewModal(true)} className="flex items-center gap-1 text-xs font-semibold text-primary">
             <Plus size={14} /> Write Review
           </button>
         }
       >
-        {/* Summary */}
         <div className="mb-4 flex items-center gap-3 rounded-xl bg-primary-soft p-3">
           <div className="text-center">
             <span className="text-2xl font-bold text-foreground">{p.rating}</span>
@@ -246,17 +281,11 @@ const ProfileScreen = () => {
             <span className="font-semibold text-foreground">{p.reviewCount}</span> Reviews
           </p>
         </div>
-
-        {/* Review Cards */}
         <div className="flex flex-col gap-3">
           {mockReviews.map((review) => (
             <div key={review.id} className="rounded-xl border border-border p-3 animate-fade-in">
               <div className="flex items-center gap-2.5 mb-2">
-                <img
-                  src={review.avatar}
-                  alt={review.name}
-                  className="h-9 w-9 rounded-full object-cover bg-muted"
-                />
+                <img src={review.avatar} alt={review.name} className="h-9 w-9 rounded-full object-cover bg-muted" />
                 <div className="flex-1 min-w-0">
                   <h4 className="text-sm font-semibold text-foreground truncate">{review.name}</h4>
                   <p className="text-[11px] text-muted-foreground">{review.college}</p>
@@ -271,9 +300,7 @@ const ProfileScreen = () => {
       </Section>
 
       {/* Review Modal */}
-      {showReviewModal && (
-        <ReviewModal onClose={() => setShowReviewModal(false)} />
-      )}
+      {showReviewModal && <ReviewModal onClose={() => setShowReviewModal(false)} />}
 
       <BottomNav />
     </div>
@@ -298,31 +325,18 @@ const ReviewModal = ({ onClose }: { onClose: () => void }) => {
       <div className="w-full max-w-md animate-slide-up rounded-t-2xl bg-card p-5">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-base font-bold text-foreground">Write a Review</h3>
-          <button onClick={onClose} className="text-sm font-medium text-muted-foreground">
-            Cancel
-          </button>
+          <button onClick={onClose} className="text-sm font-medium text-muted-foreground">Cancel</button>
         </div>
-
-        {/* Star selector */}
         <div className="mb-4">
           <p className="mb-2 text-sm font-medium text-foreground">Your Rating</p>
           <div className="flex gap-1">
             {[1, 2, 3, 4, 5].map((star) => (
               <button key={star} onClick={() => setRating(star)}>
-                <Star
-                  size={28}
-                  className={
-                    star <= rating
-                      ? "fill-star text-star"
-                      : "text-border"
-                  }
-                />
+                <Star size={28} className={star <= rating ? "fill-star text-star" : "text-border"} />
               </button>
             ))}
           </div>
         </div>
-
-        {/* Comment */}
         <div className="mb-4">
           <p className="mb-1.5 text-sm font-medium text-foreground">Your Review</p>
           <Textarea
@@ -334,7 +348,6 @@ const ReviewModal = ({ onClose }: { onClose: () => void }) => {
           />
           <p className="mt-1 text-right text-[11px] text-muted-foreground">{comment.length}/200</p>
         </div>
-
         <Button className="h-11 w-full rounded-xl font-semibold" onClick={handleSubmit}>
           Submit Review
         </Button>
@@ -343,15 +356,7 @@ const ReviewModal = ({ onClose }: { onClose: () => void }) => {
   );
 };
 
-const Section = ({
-  title,
-  action,
-  children,
-}: {
-  title: string;
-  action?: React.ReactNode;
-  children: React.ReactNode;
-}) => (
+const Section = ({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) => (
   <div className="border-t border-border px-4 py-4">
     <div className="mb-3 flex items-center justify-between">
       <h2 className="text-base font-bold text-foreground">{title}</h2>

@@ -12,6 +12,9 @@ import InsightsScreen from "./pages/InsightsScreen";
 import ChatScreen from "./pages/ChatScreen";
 import ProfileScreen from "./pages/ProfileScreen";
 import ProfileSetupScreen from "./pages/ProfileSetupScreen";
+import TeamFinderScreen from "./pages/TeamFinderScreen";
+import EventsScreen from "./pages/EventsScreen";
+import GrowthAnalyticsScreen from "./pages/GrowthAnalyticsScreen";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,9 +33,12 @@ const App = () => (
             <Route path="/profile-setup" element={<ProfileSetupScreen />} />
             <Route path="/home" element={<HomeScreen />} />
             <Route path="/add-service" element={<AddServiceScreen />} />
+            <Route path="/teams" element={<TeamFinderScreen />} />
+            <Route path="/events" element={<EventsScreen />} />
             <Route path="/insights" element={<InsightsScreen />} />
             <Route path="/chat" element={<ChatScreen />} />
             <Route path="/profile" element={<ProfileScreen />} />
+            <Route path="/growth-analytics" element={<GrowthAnalyticsScreen />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

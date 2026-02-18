@@ -1,16 +1,21 @@
 import { useState } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronDown, Star } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import BottomNav from "@/components/BottomNav";
 import ServiceCard from "@/components/ServiceCard";
 import { mockServices } from "@/data/mockData";
 
-const filters = ["All", "Design", "Tutoring", "Coding", "Notes", "PPT"];
+const categories = ["All", "Design", "Tutoring", "Coding", "Notes", "PPT"];
+const colleges = ["All Colleges", "IIT Delhi", "BITS Pilani", "NIT Trichy", "VIT Vellore", "IIIT Hyderabad", "DTU"];
 
 const HomeScreen = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [search, setSearch] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedCollege, setSelectedCollege] = useState("All Colleges");
+  const [minRating, setMinRating] = useState(0);
+  const [priceRange, setPriceRange] = useState(1000);
   const navigate = useNavigate();
 
   const filtered = mockServices.filter((s) => {
@@ -18,7 +23,11 @@ const HomeScreen = () => {
       s.name.toLowerCase().includes(search.toLowerCase()) ||
       s.service.toLowerCase().includes(search.toLowerCase()) ||
       s.college.toLowerCase().includes(search.toLowerCase());
-    return matchesSearch;
+    const matchesCategory = activeFilter === "All" || s.service.toLowerCase().includes(activeFilter.toLowerCase());
+    const matchesCollege = selectedCollege === "All Colleges" || s.college === selectedCollege;
+    const matchesRating = s.rating >= minRating;
+    const matchesPrice = s.price <= priceRange;
+    return matchesSearch && matchesCategory && matchesCollege && matchesRating && matchesPrice;
   });
 
   return (
@@ -27,8 +36,11 @@ const HomeScreen = () => {
       <div className="sticky top-0 z-40 bg-card border-b border-border px-4 pb-3 pt-4">
         <div className="flex items-center justify-between mb-3">
           <h1 className="text-xl font-bold text-foreground">SkillBridge</h1>
-          <button className="rounded-full bg-muted p-2">
-            <SlidersHorizontal size={18} className="text-muted-foreground" />
+          <button
+            className={`rounded-full p-2 transition-colors ${showFilters ? "bg-primary text-primary-foreground" : "bg-muted"}`}
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <SlidersHorizontal size={18} className={showFilters ? "" : "text-muted-foreground"} />
           </button>
         </div>
         <div className="relative">
@@ -40,9 +52,9 @@ const HomeScreen = () => {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        {/* Filters */}
+        {/* Category Chips */}
         <div className="mt-3 flex gap-2 overflow-x-auto no-scrollbar">
-          {filters.map((f) => (
+          {categories.map((f) => (
             <button
               key={f}
               onClick={() => setActiveFilter(f)}
@@ -57,6 +69,62 @@ const HomeScreen = () => {
           ))}
         </div>
       </div>
+
+      {/* Advanced Filters Panel */}
+      {showFilters && (
+        <div className="border-b border-border bg-card px-4 py-3 animate-fade-in">
+          <div className="flex flex-col gap-3">
+            {/* College Dropdown */}
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">College</label>
+              <div className="relative">
+                <select
+                  value={selectedCollege}
+                  onChange={(e) => setSelectedCollege(e.target.value)}
+                  className="w-full h-9 rounded-lg bg-muted px-3 text-xs text-foreground appearance-none border-0 focus:ring-1 focus:ring-primary"
+                >
+                  {colleges.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+              </div>
+            </div>
+            {/* Price Range */}
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                Max Price: ₹{priceRange}
+              </label>
+              <input
+                type="range"
+                min={50}
+                max={1000}
+                step={50}
+                value={priceRange}
+                onChange={(e) => setPriceRange(Number(e.target.value))}
+                className="w-full accent-primary h-1.5"
+              />
+            </div>
+            {/* Rating Filter */}
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Min Rating</label>
+              <div className="flex gap-1.5">
+                {[0, 3, 3.5, 4, 4.5].map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => setMinRating(r)}
+                    className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                      minRating === r ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {r === 0 ? "All" : <><Star size={10} className={minRating === r ? "fill-primary-foreground" : ""} />{r}+</>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Services Grid */}
       <div className="px-4 py-4">
@@ -75,6 +143,9 @@ const HomeScreen = () => {
             />
           ))}
         </div>
+        {filtered.length === 0 && (
+          <p className="text-center text-sm text-muted-foreground mt-8">No services found matching your filters.</p>
+        )}
       </div>
 
       <BottomNav />
