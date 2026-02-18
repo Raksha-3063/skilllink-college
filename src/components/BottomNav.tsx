@@ -1,11 +1,11 @@
-import { Home, PlusCircle, Lightbulb, MessageCircle, User } from "lucide-react";
+import { Home, Users, Calendar, Lightbulb, User } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const tabs = [
   { path: "/home", icon: Home, label: "Home" },
-  { path: "/add-service", icon: PlusCircle, label: "Add" },
+  { path: "/teams", icon: Users, label: "Teams" },
+  { path: "/events", icon: Calendar, label: "Events" },
   { path: "/insights", icon: Lightbulb, label: "Insights" },
-  { path: "/chat", icon: MessageCircle, label: "Chat" },
   { path: "/profile", icon: User, label: "Profile" },
 ];
 
