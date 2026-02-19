@@ -65,6 +65,9 @@ export const mockProfile = {
   avatar: "https://i.pravatar.cc/150?img=1",
   bio: "Passionate about UI/UX design & front-end development. Helping students build beautiful products.",
   about: "I'm a self-taught designer with 2+ years of experience in creating clean, user-friendly interfaces. I specialize in mobile app design, web design, and branding. Currently available for freelance projects.",
+  passionTags: ["AI", "UI/UX", "Flutter", "Design Systems"],
+  currentlyWorkingOn: "Building a cross-platform design system for student startups using Figma + React.",
+  personalDescription: "Creative thinker who believes design can solve real-world problems. I love collaborating with diverse teams and turning ideas into pixel-perfect products. Outside of tech, I sketch and read sci-fi novels.",
   education: { college: "IIT Delhi", degree: "B.Tech Computer Science", year: "2022-2026" },
   experience: [
     { role: "UI/UX Design Intern", company: "Flipkart", duration: "May 2024 - Jul 2024" },
