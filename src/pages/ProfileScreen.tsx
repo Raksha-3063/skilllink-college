@@ -14,8 +14,12 @@ import {
   Clock,
   TrendingUp,
   CheckCircle,
+  Flame,
+  Camera,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import BottomNav from "@/components/BottomNav";
 import StarRating from "@/components/StarRating";
@@ -23,13 +27,30 @@ import { mockProfile, mockReviews } from "@/data/mockData";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
+const PASSION_OPTIONS = ["AI", "Web Dev", "Flutter", "Data Science", "Entrepreneurship", "UI/UX", "ML", "Design Systems", "Blockchain", "Cloud"];
+
 const ProfileScreen = () => {
-  const p = mockProfile;
   const navigate = useNavigate();
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [connectStatus, setConnectStatus] = useState<"none" | "pending" | "connected">("none");
   const [isFollowing, setIsFollowing] = useState(false);
   const [serviceRequests, setServiceRequests] = useState<Record<number, "none" | "requested" | "accepted" | "completed">>({});
+
+  // Editable profile state
+  const [profile, setProfile] = useState({
+    name: mockProfile.name,
+    college: mockProfile.college,
+    course: mockProfile.course,
+    avatar: mockProfile.avatar,
+    bio: mockProfile.bio,
+    about: mockProfile.about,
+    passionTags: mockProfile.passionTags,
+    currentlyWorkingOn: mockProfile.currentlyWorkingOn,
+    personalDescription: mockProfile.personalDescription,
+  });
+
+  const p = { ...mockProfile, ...profile };
 
   const handleConnect = () => {
     if (connectStatus === "none") {
@@ -49,7 +70,6 @@ const ProfileScreen = () => {
   const handleRequestService = (idx: number) => {
     setServiceRequests((prev) => ({ ...prev, [idx]: "requested" }));
     toast.success("Service requested!");
-    // Simulate acceptance after 1.5s
     setTimeout(() => {
       setServiceRequests((prev) => ({ ...prev, [idx]: "accepted" }));
       toast.success("Service request accepted!");
@@ -89,12 +109,23 @@ const ProfileScreen = () => {
             <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={() => navigate("/growth-analytics")}>
               <TrendingUp size={14} />
             </Button>
-            <Button variant="outline" size="sm" className="rounded-full gap-1.5">
+            <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={() => setShowEditModal(true)}>
               <Edit size={14} /> Edit
             </Button>
           </div>
         </div>
         <p className="mt-2 text-sm text-foreground leading-relaxed">{p.bio}</p>
+
+        {/* Passion Tags */}
+        {p.passionTags && p.passionTags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {p.passionTags.map((tag) => (
+              <span key={tag} className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Network Stats */}
         <div className="mt-3 flex items-center gap-4">
@@ -156,6 +187,20 @@ const ProfileScreen = () => {
           </Button>
         </div>
       </div>
+
+      {/* Currently Working On */}
+      {p.currentlyWorkingOn && (
+        <Section title="🔥 Currently Working On">
+          <p className="text-sm text-foreground leading-relaxed">{p.currentlyWorkingOn}</p>
+        </Section>
+      )}
+
+      {/* About Me */}
+      {p.personalDescription && (
+        <Section title="About Me">
+          <p className="text-sm text-foreground leading-relaxed">{p.personalDescription}</p>
+        </Section>
+      )}
 
       {/* About */}
       <Section title="About">
@@ -302,11 +347,204 @@ const ProfileScreen = () => {
       {/* Review Modal */}
       {showReviewModal && <ReviewModal onClose={() => setShowReviewModal(false)} />}
 
+      {/* Edit Profile Modal */}
+      {showEditModal && (
+        <EditProfileModal
+          profile={profile}
+          onSave={(updated) => {
+            setProfile(updated);
+            setShowEditModal(false);
+            toast.success("Profile Updated Successfully");
+          }}
+          onClose={() => setShowEditModal(false)}
+        />
+      )}
+
       <BottomNav />
     </div>
   );
 };
 
+/* ── Edit Profile Modal ── */
+interface EditableProfile {
+  name: string;
+  college: string;
+  course: string;
+  avatar: string;
+  bio: string;
+  about: string;
+  passionTags: string[];
+  currentlyWorkingOn: string;
+  personalDescription: string;
+}
+
+const EditProfileModal = ({
+  profile,
+  onSave,
+  onClose,
+}: {
+  profile: EditableProfile;
+  onSave: (p: EditableProfile) => void;
+  onClose: () => void;
+}) => {
+  const [form, setForm] = useState<EditableProfile>({ ...profile });
+  const [tagInput, setTagInput] = useState("");
+
+  const set = (key: keyof EditableProfile, value: string) =>
+    setForm((prev) => ({ ...prev, [key]: value }));
+
+  const addTag = (tag: string) => {
+    const t = tag.trim();
+    if (t && !form.passionTags.includes(t) && form.passionTags.length < 6) {
+      setForm((prev) => ({ ...prev, passionTags: [...prev.passionTags, t] }));
+    }
+    setTagInput("");
+  };
+
+  const removeTag = (tag: string) =>
+    setForm((prev) => ({ ...prev, passionTags: prev.passionTags.filter((t) => t !== tag) }));
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40">
+      <div className="w-full max-w-md animate-slide-up rounded-t-2xl bg-card max-h-[90vh] flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between p-5 pb-3 border-b border-border">
+          <h3 className="text-base font-bold text-foreground">Edit Profile</h3>
+          <button onClick={onClose} className="rounded-full p-1 hover:bg-muted">
+            <X size={20} className="text-muted-foreground" />
+          </button>
+        </div>
+
+        {/* Scrollable Form */}
+        <div className="flex-1 overflow-y-auto p-5 pt-4 flex flex-col gap-4">
+          {/* Avatar */}
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <img src={form.avatar} alt="Profile" className="h-20 w-20 rounded-full object-cover bg-muted" />
+              <button className="absolute bottom-0 right-0 rounded-full bg-primary p-1.5 text-primary-foreground shadow-md">
+                <Camera size={14} />
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">Tap camera to change photo</p>
+          </div>
+
+          {/* Full Name */}
+          <Field label="Full Name">
+            <Input
+              value={form.name}
+              onChange={(e) => set("name", e.target.value)}
+              className="h-11 rounded-xl"
+              placeholder="Your full name"
+            />
+          </Field>
+
+          {/* College */}
+          <Field label="College Name">
+            <Input
+              value={form.college}
+              onChange={(e) => set("college", e.target.value)}
+              className="h-11 rounded-xl"
+              placeholder="e.g. IIT Delhi"
+            />
+          </Field>
+
+          {/* Course */}
+          <Field label="Course / Year">
+            <Input
+              value={form.course}
+              onChange={(e) => set("course", e.target.value)}
+              className="h-11 rounded-xl"
+              placeholder="e.g. B.Tech CSE, 3rd Year"
+            />
+          </Field>
+
+          {/* Short Bio */}
+          <Field label="Short Bio" counter={`${form.bio.length}/120`}>
+            <Textarea
+              value={form.bio}
+              onChange={(e) => set("bio", e.target.value.slice(0, 120))}
+              maxLength={120}
+              className="min-h-[70px] rounded-xl resize-none"
+              placeholder="A short intro about yourself"
+            />
+          </Field>
+
+          {/* Passion Tags */}
+          <Field label="Passion Areas">
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {form.passionTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary"
+                >
+                  {tag}
+                  <button onClick={() => removeTag(tag)} className="hover:text-destructive">
+                    <X size={12} />
+                  </button>
+                </span>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {PASSION_OPTIONS.filter((o) => !form.passionTags.includes(o)).map((opt) => (
+                <button
+                  key={opt}
+                  onClick={() => addTag(opt)}
+                  className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                >
+                  + {opt}
+                </button>
+              ))}
+            </div>
+          </Field>
+
+          {/* Currently Working On */}
+          <Field label="What I'm Currently Working On" counter={`${form.currentlyWorkingOn.length}/150`}>
+            <Textarea
+              value={form.currentlyWorkingOn}
+              onChange={(e) => set("currentlyWorkingOn", e.target.value.slice(0, 150))}
+              maxLength={150}
+              className="min-h-[70px] rounded-xl resize-none"
+              placeholder="Describe your current project or focus"
+            />
+          </Field>
+
+          {/* Personal Description */}
+          <Field label="About Me" counter={`${form.personalDescription.length}/300`}>
+            <Textarea
+              value={form.personalDescription}
+              onChange={(e) => set("personalDescription", e.target.value.slice(0, 300))}
+              maxLength={300}
+              className="min-h-[90px] rounded-xl resize-none"
+              placeholder="Tell others more about yourself"
+            />
+          </Field>
+        </div>
+
+        {/* Footer Buttons */}
+        <div className="flex gap-3 p-5 pt-3 border-t border-border">
+          <Button variant="outline" className="flex-1 h-11 rounded-xl font-semibold" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button className="flex-1 h-11 rounded-xl font-semibold" onClick={() => onSave(form)}>
+            Save Changes
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Field = ({ label, counter, children }: { label: string; counter?: string; children: React.ReactNode }) => (
+  <div>
+    <div className="mb-1.5 flex items-center justify-between">
+      <label className="text-sm font-medium text-foreground">{label}</label>
+      {counter && <span className="text-[11px] text-muted-foreground">{counter}</span>}
+    </div>
+    {children}
+  </div>
+);
+
+/* ── Review Modal ── */
 const ReviewModal = ({ onClose }: { onClose: () => void }) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
