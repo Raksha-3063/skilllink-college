@@ -14,9 +14,9 @@ const RegisterScreen = () => {
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-8">
         <div className="w-full max-w-sm animate-fade-in">
           <div className="mb-6 flex flex-col items-center gap-2">
-            <img src={logo} alt="SkillBridge" className="h-14 w-14 rounded-xl" />
+            <img src={logo} alt="Nexora" className="h-14 w-14 rounded-xl" />
             <h1 className="text-2xl font-bold text-foreground">Create Account</h1>
-            <p className="text-sm text-muted-foreground">Join the student skill marketplace</p>
+            <p className="text-sm text-muted-foreground">Join Nexora – The Student Growth Network</p>
           </div>
 
           <div className="flex flex-col gap-3.5">

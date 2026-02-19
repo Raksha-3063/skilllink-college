@@ -35,7 +35,7 @@ const HomeScreen = () => {
       {/* Header */}
       <div className="sticky top-0 z-40 bg-card border-b border-border px-4 pb-3 pt-4">
         <div className="flex items-center justify-between mb-3">
-          <h1 className="text-xl font-bold text-foreground">SkillBridge</h1>
+          <h1 className="text-xl font-bold text-foreground">Nexora</h1>
           <button
             className={`rounded-full p-2 transition-colors ${showFilters ? "bg-primary text-primary-foreground" : "bg-muted"}`}
             onClick={() => setShowFilters(!showFilters)}
