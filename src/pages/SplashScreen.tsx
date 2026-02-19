@@ -13,12 +13,12 @@ const SplashScreen = () => {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center splash-gradient">
       <div className="animate-scale-in flex flex-col items-center gap-4">
-        <img src={logo} alt="SkillBridge" className="h-24 w-24 rounded-2xl" />
+        <img src={logo} alt="Nexora" className="h-24 w-24 rounded-2xl" />
         <h1 className="text-3xl font-bold text-primary-foreground tracking-tight">
-          SkillBridge
+          Nexora
         </h1>
         <p className="text-primary-foreground/70 text-sm font-medium">
-          Connect. Learn. Grow.
+          Grow Beyond Limits
         </p>
       </div>
     </div>

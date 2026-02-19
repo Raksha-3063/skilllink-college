@@ -45,7 +45,7 @@
     --sidebar-border: 214 32% 91%;
     --sidebar-ring: 217 91% 53%;
 
-    /* SkillBridge custom tokens */
+    /* Nexora custom tokens */
     --surface: 0 0% 100%;
     --surface-elevated: 0 0% 100%;
     --primary-soft: 217 91% 96%;
@@ -122,7 +122,7 @@
     box-shadow: 0 4px 12px -2px hsl(var(--foreground) / 0.08), 0 2px 6px -2px hsl(var(--foreground) / 0.04);
   }
   .splash-gradient {
-    background: linear-gradient(135deg, hsl(217 91% 53%), hsl(217 91% 40%));
+    background: linear-gradient(135deg, hsl(217 91% 53%), hsl(239 84% 50%));
   }
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0.5rem);

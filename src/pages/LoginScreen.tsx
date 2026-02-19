@@ -14,9 +14,9 @@ const LoginScreen = () => {
       <div className="flex flex-1 flex-col items-center justify-center px-6">
         <div className="w-full max-w-sm animate-fade-in">
           <div className="mb-8 flex flex-col items-center gap-3">
-            <img src={logo} alt="SkillBridge" className="h-16 w-16 rounded-xl" />
-            <h1 className="text-2xl font-bold text-foreground">Welcome Back</h1>
-            <p className="text-sm text-muted-foreground">Sign in to your SkillBridge account</p>
+            <img src={logo} alt="Nexora" className="h-16 w-16 rounded-xl" />
+            <h1 className="text-2xl font-bold text-foreground">Welcome to Nexora</h1>
+            <p className="text-sm text-muted-foreground">The Student Growth Network</p>
           </div>
 
           <div className="flex flex-col gap-4">
