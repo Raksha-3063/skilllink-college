@@ -1,73 +1,152 @@
-# Welcome to your Lovable project
+🚀 Nexora
+The Next Era of Student Growth
 
-## Project info
+Nexora is a verified student-only digital ecosystem designed to enable collaboration, micro-freelancing, hackathon team formation, and measurable professional growth within a single unified platform.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+The application focuses on structured student development by integrating networking, skill exchange, opportunity discovery, and monthly analytics tracking.
 
-## How can I edit this code?
+📌 Overview
 
-There are several ways of editing your application.
+College students often rely on multiple disconnected platforms for networking, freelancing, hackathons, and growth tracking. Nexora brings these elements together into a single, focused system built exclusively for verified students.
 
-**Use Lovable**
+The platform encourages:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+🤝 Collaboration over competition
 
-Changes made via Lovable will be committed automatically to this repo.
+💡 Micro-learning and skill monetization
 
-**Use your preferred IDE**
+🌍 Cross-college networking
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+📊 Measurable and data-driven growth
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+✨ Core Features
+🔐 Student-Only Authentication
 
-Follow these steps:
+Secure registration using college credentials
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Verified access to maintain a trusted ecosystem
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+👤 Professional Student Profiles
 
-# Step 3: Install the necessary dependencies.
-npm i
+Editable profile with:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+Bio and personal description
 
-**Edit a file directly in GitHub**
+Passion areas
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Current projects
 
-**Use GitHub Codespaces**
+Education and experience
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+📈 Profile completion tracking
 
-## What technologies are used for this project?
+💼 Micro-Freelancing Marketplace
 
-This project is built with:
+Create and publish services
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Set custom pricing
 
-## How can I deploy this project?
+Accept service requests
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+Built-in chat system
 
-## Can I connect a custom domain to my Lovable project?
+⭐ Rating and review mechanism
 
-Yes, you can!
+👥 Hackathon Team Finder
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Post team requirements
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Search by domain and required skills
+
+Join existing teams
+
+Collaborate across institutions
+
+🎯 Events & Workshops Module
+
+Discover hackathons and workshops
+
+Filter by domain, college, or mode (online/offline)
+
+View event details and registration information
+
+🔗 Networking System
+
+Follow other students
+
+Send and accept connection requests
+
+Build a structured professional student network
+
+⭐ Review & Rating System
+
+1–5 star rating after service completion
+
+Written feedback
+
+Average rating displayed on profiles
+
+📊 Growth Analytics Dashboard
+
+Monthly performance tracking
+
+Services completed
+
+Earnings generated
+
+Hackathons participated
+
+Connections built
+
+📈 Growth score visualization
+
+This feature promotes continuous improvement through measurable progress.
+
+💎 Unique Value Proposition
+
+Unlike traditional networking or freelancing platforms, Nexora is centered on measurable student growth.
+
+The platform integrates collaboration, skill monetization, opportunity participation, and analytics within a verified student-only environment.
+
+🛠 Technology Stack
+
+Frontend
+
+Flutter
+
+Backend
+
+Firebase Authentication
+
+Cloud Firestore
+
+Firebase Cloud Messaging (optional)
+
+Architecture
+
+Modular feature-based structure
+
+Real-time updates
+
+Timestamp-based analytics tracking
+
+🔮 Future Enhancements
+
+💳 In-app payment integration
+
+🤖 AI-based skill recommendations
+
+🏆 College-level leaderboards
+
+🎓 Internship matching system
+
+📊 Advanced collaboration scoring
+
+🎯 Vision
+
+Nexora aims to become a structured student growth operating system — enabling students to collaborate, build, earn, and track their development throughout their academic journey.
+
+👩‍💻 Author
+
+Raksha C C
+B.Tech Computer Science & Engineering
