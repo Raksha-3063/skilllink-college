@@ -3,11 +3,31 @@ import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import logo from "@/assets/skillbridge-logo.png";
 
 const LoginScreen = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
+    if (error) {
+      toast.error(error.message);
+    } else {
+      navigate("/home");
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -22,7 +42,13 @@ const LoginScreen = () => {
           <div className="flex flex-col gap-4">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-foreground">Email</label>
-              <Input placeholder="you@college.edu" type="email" className="h-12 rounded-xl" />
+              <Input
+                placeholder="you@college.edu"
+                type="email"
+                className="h-12 rounded-xl"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium text-foreground">Password</label>
@@ -31,6 +57,9 @@ const LoginScreen = () => {
                   placeholder="Enter password"
                   type={showPassword ? "text" : "password"}
                   className="h-12 rounded-xl pr-12"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleLogin()}
                 />
                 <button
                   type="button"
@@ -44,9 +73,10 @@ const LoginScreen = () => {
 
             <Button
               className="h-12 rounded-xl text-base font-semibold"
-              onClick={() => navigate("/home")}
+              onClick={handleLogin}
+              disabled={loading}
             >
-              Sign In
+              {loading ? "Signing In..." : "Sign In"}
             </Button>
 
             <p className="text-center text-sm text-muted-foreground">
