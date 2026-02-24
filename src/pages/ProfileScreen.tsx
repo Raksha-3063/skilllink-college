@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   MapPin,
   GraduationCap,
@@ -14,43 +14,121 @@ import {
   Clock,
   TrendingUp,
   CheckCircle,
-  Flame,
   Camera,
   X,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import BottomNav from "@/components/BottomNav";
 import StarRating from "@/components/StarRating";
-import { mockProfile, mockReviews } from "@/data/mockData";
+import { mockReviews, mockProfile } from "@/data/mockData";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const PASSION_OPTIONS = ["AI", "Web Dev", "Flutter", "Data Science", "Entrepreneurship", "UI/UX", "ML", "Design Systems", "Blockchain", "Cloud"];
 
+interface ProfileData {
+  name: string;
+  college: string;
+  course: string;
+  avatar: string;
+  bio: string;
+  passionTags: string[];
+  currentlyWorkingOn: string;
+  personalDescription: string;
+  skills: string[];
+}
+
 const ProfileScreen = () => {
   const navigate = useNavigate();
+  const { user, loading: authLoading, signOut } = useAuth();
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [connectStatus, setConnectStatus] = useState<"none" | "pending" | "connected">("none");
   const [isFollowing, setIsFollowing] = useState(false);
   const [serviceRequests, setServiceRequests] = useState<Record<number, "none" | "requested" | "accepted" | "completed">>({});
+  const [profileLoading, setProfileLoading] = useState(true);
 
-  // Editable profile state
-  const [profile, setProfile] = useState({
-    name: mockProfile.name,
-    college: mockProfile.college,
-    course: mockProfile.course,
-    avatar: mockProfile.avatar,
-    bio: mockProfile.bio,
-    about: mockProfile.about,
-    passionTags: mockProfile.passionTags,
-    currentlyWorkingOn: mockProfile.currentlyWorkingOn,
-    personalDescription: mockProfile.personalDescription,
+  const [profile, setProfile] = useState<ProfileData>({
+    name: "",
+    college: "",
+    course: "",
+    avatar: "",
+    bio: "",
+    passionTags: [],
+    currentlyWorkingOn: "",
+    personalDescription: "",
+    skills: [],
   });
 
-  const p = { ...mockProfile, ...profile };
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/login");
+    }
+  }, [authLoading, user, navigate]);
+
+  // Fetch profile from DB
+  useEffect(() => {
+    if (!user) return;
+    const fetchProfile = async () => {
+      setProfileLoading(true);
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        toast.error("Failed to load profile");
+        setProfileLoading(false);
+        return;
+      }
+
+      if (!data) {
+        // Fallback: create profile if it doesn't exist
+        const { data: created, error: createError } = await supabase
+          .from("profiles")
+          .insert({ user_id: user.id, full_name: user.user_metadata?.full_name || "" })
+          .select()
+          .single();
+        if (createError) {
+          toast.error("Failed to create profile");
+          setProfileLoading(false);
+          return;
+        }
+        mapDbToState(created);
+      } else {
+        mapDbToState(data);
+      }
+      setProfileLoading(false);
+    };
+
+    const mapDbToState = (row: any) => {
+      setProfile({
+        name: row.full_name || "",
+        college: row.college || "",
+        course: row.course || "",
+        avatar: row.avatar_url || `https://i.pravatar.cc/150?u=${user!.id}`,
+        bio: row.bio || "",
+        passionTags: row.passion_tags || [],
+        currentlyWorkingOn: row.currently_working_on || "",
+        personalDescription: row.personal_description || "",
+        skills: row.skills || [],
+      });
+    };
+
+    fetchProfile();
+  }, [user]);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   const handleConnect = () => {
     if (connectStatus === "none") {
@@ -81,6 +159,55 @@ const ProfileScreen = () => {
     setShowReviewModal(true);
   };
 
+  const handleSaveProfile = async (updated: ProfileData) => {
+    if (!user) return;
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        full_name: updated.name,
+        college: updated.college,
+        course: updated.course,
+        avatar_url: updated.avatar,
+        bio: updated.bio,
+        passion_tags: updated.passionTags,
+        currently_working_on: updated.currentlyWorkingOn,
+        personal_description: updated.personalDescription,
+        skills: updated.skills,
+      })
+      .eq("user_id", user.id);
+
+    if (error) {
+      toast.error("Failed to save profile");
+      return;
+    }
+
+    setProfile(updated);
+    setShowEditModal(false);
+    toast.success("Profile Updated Successfully");
+  };
+
+  if (authLoading || profileLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground text-sm">Loading profile...</div>
+      </div>
+    );
+  }
+
+  // Use static data for sections we haven't moved to DB yet
+  const p = {
+    ...mockProfile,
+    name: profile.name,
+    college: profile.college,
+    course: profile.course,
+    avatar: profile.avatar,
+    bio: profile.bio,
+    passionTags: profile.passionTags,
+    currentlyWorkingOn: profile.currentlyWorkingOn,
+    personalDescription: profile.personalDescription,
+    skills: profile.skills.length > 0 ? profile.skills : mockProfile.skills,
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Cover + Avatar */}
@@ -99,9 +226,9 @@ const ProfileScreen = () => {
       <div className="px-4 pt-2 pb-3">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-xl font-bold text-foreground">{p.name}</h1>
+            <h1 className="text-xl font-bold text-foreground">{p.name || "Set up your profile"}</h1>
             <p className="flex items-center gap-1 text-sm text-muted-foreground">
-              <MapPin size={14} /> {p.college}
+              <MapPin size={14} /> {p.college || "Add your college"}
             </p>
             <p className="text-xs text-muted-foreground">{p.course}</p>
           </div>
@@ -111,6 +238,9 @@ const ProfileScreen = () => {
             </Button>
             <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={() => setShowEditModal(true)}>
               <Edit size={14} /> Edit
+            </Button>
+            <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={handleLogout}>
+              <LogOut size={14} />
             </Button>
           </div>
         </div>
@@ -351,11 +481,7 @@ const ProfileScreen = () => {
       {showEditModal && (
         <EditProfileModal
           profile={profile}
-          onSave={(updated) => {
-            setProfile(updated);
-            setShowEditModal(false);
-            toast.success("Profile Updated Successfully");
-          }}
+          onSave={handleSaveProfile}
           onClose={() => setShowEditModal(false)}
         />
       )}
@@ -366,31 +492,20 @@ const ProfileScreen = () => {
 };
 
 /* ── Edit Profile Modal ── */
-interface EditableProfile {
-  name: string;
-  college: string;
-  course: string;
-  avatar: string;
-  bio: string;
-  about: string;
-  passionTags: string[];
-  currentlyWorkingOn: string;
-  personalDescription: string;
-}
-
 const EditProfileModal = ({
   profile,
   onSave,
   onClose,
 }: {
-  profile: EditableProfile;
-  onSave: (p: EditableProfile) => void;
+  profile: ProfileData;
+  onSave: (p: ProfileData) => void;
   onClose: () => void;
 }) => {
-  const [form, setForm] = useState<EditableProfile>({ ...profile });
-  const [tagInput, setTagInput] = useState("");
+  const [form, setForm] = useState<ProfileData>({ ...profile });
+  const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const set = (key: keyof EditableProfile, value: string) =>
+  const set = (key: keyof ProfileData, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
   const addTag = (tag: string) => {
@@ -398,11 +513,26 @@ const EditProfileModal = ({
     if (t && !form.passionTags.includes(t) && form.passionTags.length < 6) {
       setForm((prev) => ({ ...prev, passionTags: [...prev.passionTags, t] }));
     }
-    setTagInput("");
   };
 
   const removeTag = (tag: string) =>
     setForm((prev) => ({ ...prev, passionTags: prev.passionTags.filter((t) => t !== tag) }));
+
+  const validate = (): boolean => {
+    const errs: Record<string, string> = {};
+    if (!form.name.trim()) errs.name = "Name cannot be empty";
+    if (form.bio.length > 120) errs.bio = "Bio must be 120 characters or less";
+    if (form.personalDescription.length > 300) errs.personalDescription = "About must be 300 characters or less";
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleSave = async () => {
+    if (!validate()) return;
+    setSaving(true);
+    await onSave(form);
+    setSaving(false);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40">
@@ -429,7 +559,7 @@ const EditProfileModal = ({
           </div>
 
           {/* Full Name */}
-          <Field label="Full Name">
+          <Field label="Full Name" error={errors.name}>
             <Input
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
@@ -459,7 +589,7 @@ const EditProfileModal = ({
           </Field>
 
           {/* Short Bio */}
-          <Field label="Short Bio" counter={`${form.bio.length}/120`}>
+          <Field label="Short Bio" counter={`${form.bio.length}/120`} error={errors.bio}>
             <Textarea
               value={form.bio}
               onChange={(e) => set("bio", e.target.value.slice(0, 120))}
@@ -509,7 +639,7 @@ const EditProfileModal = ({
           </Field>
 
           {/* Personal Description */}
-          <Field label="About Me" counter={`${form.personalDescription.length}/300`}>
+          <Field label="About Me" counter={`${form.personalDescription.length}/300`} error={errors.personalDescription}>
             <Textarea
               value={form.personalDescription}
               onChange={(e) => set("personalDescription", e.target.value.slice(0, 300))}
@@ -525,8 +655,8 @@ const EditProfileModal = ({
           <Button variant="outline" className="flex-1 h-11 rounded-xl font-semibold" onClick={onClose}>
             Cancel
           </Button>
-          <Button className="flex-1 h-11 rounded-xl font-semibold" onClick={() => onSave(form)}>
-            Save Changes
+          <Button className="flex-1 h-11 rounded-xl font-semibold" onClick={handleSave} disabled={saving}>
+            {saving ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </div>
@@ -534,13 +664,14 @@ const EditProfileModal = ({
   );
 };
 
-const Field = ({ label, counter, children }: { label: string; counter?: string; children: React.ReactNode }) => (
+const Field = ({ label, counter, error, children }: { label: string; counter?: string; error?: string; children: React.ReactNode }) => (
   <div>
     <div className="mb-1.5 flex items-center justify-between">
       <label className="text-sm font-medium text-foreground">{label}</label>
       {counter && <span className="text-[11px] text-muted-foreground">{counter}</span>}
     </div>
     {children}
+    {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
   </div>
 );
 

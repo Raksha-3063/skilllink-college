@@ -1,12 +1,16 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/skillbridge-logo.png";
 
 const SplashScreen = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const timer = setTimeout(() => navigate("/login"), 2500);
+    const timer = setTimeout(async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      navigate(session ? "/home" : "/login");
+    }, 2500);
     return () => clearTimeout(timer);
   }, [navigate]);
 
