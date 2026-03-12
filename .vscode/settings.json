@@ -1,4 +1,4 @@
 {
-  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
-  "python.analysis.extraPaths": ["${workspaceFolder}"]
+  "python.defaultInterpreterPath": "C:/Users/Raksha/OneDrive/Desktop/MAD PROJECT/skilllink-college/backend/.venv/Scripts/python.exe",
+  "python.analysis.extraPaths": ["C:/Users/Raksha/OneDrive/Desktop/MAD PROJECT/skilllink-college/backend"]
 }
