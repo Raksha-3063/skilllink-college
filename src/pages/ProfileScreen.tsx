@@ -20,10 +20,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import BottomNav from "@/components/BottomNav";
 import StarRating from "@/components/StarRating";
-import { mockReviews } from "@/data/mockData";
+import { mockReviews, mockServices } from "@/data/mockData";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -45,6 +45,7 @@ interface ProfileData {
 
 const ProfileScreen = () => {
   const navigate = useNavigate();
+  const { userId: routeUserId } = useParams<{ userId: string }>();
   const { user, loading: authLoading, signOut } = useAuth();
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -52,6 +53,11 @@ const ProfileScreen = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [serviceRequests, setServiceRequests] = useState<Record<number, "none" | "requested" | "accepted" | "completed">>({});
   const [profileLoading, setProfileLoading] = useState(true);
+
+  // Determine if viewing a mock user (from service cards) or a real DB user
+  const mockUser = routeUserId ? mockServices.find(s => s.id === Number(routeUserId)) : null;
+  const isOwnProfile = !routeUserId || (user && routeUserId === user.id);
+  const isMockProfile = !!mockUser;
 
   const [profile, setProfile] = useState<ProfileData>({
     name: "",
@@ -72,15 +78,35 @@ const ProfileScreen = () => {
     }
   }, [authLoading, user, navigate]);
 
-  // Fetch profile from DB
+  // Fetch profile data
   useEffect(() => {
     if (!user) return;
+
+    // If viewing a mock service card user
+    if (isMockProfile && mockUser) {
+      setProfile({
+        name: mockUser.name,
+        college: mockUser.college,
+        course: "",
+        avatar: mockUser.avatar,
+        bio: mockUser.description,
+        passionTags: [mockUser.service],
+        currentlyWorkingOn: "",
+        personalDescription: mockUser.description,
+        skills: [mockUser.service],
+      });
+      setProfileLoading(false);
+      return;
+    }
+
+    // Fetch real profile from DB (own profile or another real user)
+    const targetUserId = isOwnProfile ? user.id : routeUserId!;
     const fetchProfile = async () => {
       setProfileLoading(true);
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", targetUserId)
         .maybeSingle();
 
       if (error) {
@@ -89,8 +115,8 @@ const ProfileScreen = () => {
         return;
       }
 
-      if (!data) {
-        // Fallback: create profile if it doesn't exist
+      if (!data && isOwnProfile) {
+        // Fallback: create profile if it doesn't exist (own profile only)
         const { data: created, error: createError } = await supabase
           .from("profiles")
           .insert({ user_id: user.id, full_name: user.user_metadata?.full_name || "" })
@@ -102,6 +128,10 @@ const ProfileScreen = () => {
           return;
         }
         mapDbToState(created);
+      } else if (!data) {
+        toast.error("User not found");
+        setProfileLoading(false);
+        return;
       } else {
         mapDbToState(data);
       }
@@ -113,7 +143,7 @@ const ProfileScreen = () => {
         name: row.full_name || "",
         college: row.college || "",
         course: row.course || "",
-        avatar: row.avatar_url || `https://i.pravatar.cc/150?u=${user!.id}`,
+        avatar: row.avatar_url || `https://i.pravatar.cc/150?u=${row.user_id}`,
         bio: row.bio || "",
         passionTags: row.passion_tags || [],
         currentlyWorkingOn: row.currently_working_on || "",
@@ -123,7 +153,7 @@ const ProfileScreen = () => {
     };
 
     fetchProfile();
-  }, [user]);
+  }, [user, routeUserId]);
 
   const handleLogout = async () => {
     await signOut();
@@ -241,17 +271,23 @@ const ProfileScreen = () => {
             </p>
             <p className="text-xs text-muted-foreground">{p.course}</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={() => navigate("/growth-analytics")}>
-              <TrendingUp size={14} />
+          {isOwnProfile && !isMockProfile ? (
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={() => navigate("/growth-analytics")}>
+                <TrendingUp size={14} />
+              </Button>
+              <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={() => setShowEditModal(true)}>
+                <Edit size={14} /> Edit
+              </Button>
+              <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={handleLogout}>
+                <LogOut size={14} />
+              </Button>
+            </div>
+          ) : (
+            <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={() => navigate(-1)}>
+              Back
             </Button>
-            <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={() => setShowEditModal(true)}>
-              <Edit size={14} /> Edit
-            </Button>
-            <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={handleLogout}>
-              <LogOut size={14} />
-            </Button>
-          </div>
+          )}
         </div>
         <p className="mt-2 text-sm text-foreground leading-relaxed">{p.bio}</p>
 
@@ -298,8 +334,8 @@ const ProfileScreen = () => {
           </div>
         )}
 
-        {/* Connect & Follow Buttons */}
-        <div className="mt-3 flex gap-2">
+        {/* Connect & Follow Buttons — only on other users' profiles */}
+        {!isOwnProfile && <div className="mt-3 flex gap-2">
           <Button
             onClick={handleConnect}
             className={`flex-1 h-10 rounded-full gap-1.5 text-sm font-semibold ${
@@ -324,7 +360,7 @@ const ProfileScreen = () => {
           >
             {isFollowing ? <><Users size={16} /> Following</> : <><Plus size={16} /> Follow</>}
           </Button>
-        </div>
+        </div>}
       </div>
 
       {/* Currently Working On */}

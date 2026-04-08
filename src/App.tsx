@@ -38,6 +38,7 @@ const App = () => (
             <Route path="/insights" element={<InsightsScreen />} />
             <Route path="/chat" element={<ChatScreen />} />
             <Route path="/profile" element={<ProfileScreen />} />
+            <Route path="/profile/:userId" element={<ProfileScreen />} />
             <Route path="/growth-analytics" element={<GrowthAnalyticsScreen />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

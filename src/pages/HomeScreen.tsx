@@ -139,7 +139,7 @@ const HomeScreen = () => {
               price={service.price}
               rating={service.rating}
               reviewCount={service.reviewCount}
-              onViewProfile={() => navigate("/profile")}
+              onViewProfile={() => navigate(`/profile/${service.id}`)}
             />
           ))}
         </div>
