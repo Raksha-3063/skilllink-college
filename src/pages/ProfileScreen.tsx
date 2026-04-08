@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { useNavigate, useParams } from "react-router-dom";
 import BottomNav from "@/components/BottomNav";
 import StarRating from "@/components/StarRating";
-import { mockReviews } from "@/data/mockData";
+import { mockReviews, mockServices } from "@/data/mockData";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
