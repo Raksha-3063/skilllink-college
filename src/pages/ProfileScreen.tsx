@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import BottomNav from "@/components/BottomNav";
 import StarRating from "@/components/StarRating";
-import { mockReviews, mockProfile } from "@/data/mockData";
+import { mockReviews } from "@/data/mockData";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -194,9 +194,8 @@ const ProfileScreen = () => {
     );
   }
 
-  // Use static data for sections we haven't moved to DB yet
+  // Display only real user data from database
   const p = {
-    ...mockProfile,
     name: profile.name,
     college: profile.college,
     course: profile.course,
@@ -205,7 +204,17 @@ const ProfileScreen = () => {
     passionTags: profile.passionTags,
     currentlyWorkingOn: profile.currentlyWorkingOn,
     personalDescription: profile.personalDescription,
-    skills: profile.skills.length > 0 ? profile.skills : mockProfile.skills,
+    skills: profile.skills,
+    connections: 0,
+    followers: 0,
+    following: 0,
+    rating: 0,
+    reviewCount: 0,
+    mutualConnections: [] as { name: string; avatar: string }[],
+    about: profile.personalDescription || "",
+    education: { college: profile.college, degree: profile.course, year: "" },
+    experience: [] as { role: string; company: string; duration: string }[],
+    services: [] as { title: string; price: number; description: string }[],
   };
 
   return (
