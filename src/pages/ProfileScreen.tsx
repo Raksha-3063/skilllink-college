@@ -334,8 +334,8 @@ const ProfileScreen = () => {
           </div>
         )}
 
-        {/* Connect & Follow Buttons */}
-        <div className="mt-3 flex gap-2">
+        {/* Connect & Follow Buttons — only on other users' profiles */}
+        {!isOwnProfile && <div className="mt-3 flex gap-2">
           <Button
             onClick={handleConnect}
             className={`flex-1 h-10 rounded-full gap-1.5 text-sm font-semibold ${
