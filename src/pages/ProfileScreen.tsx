@@ -360,7 +360,7 @@ const ProfileScreen = () => {
           >
             {isFollowing ? <><Users size={16} /> Following</> : <><Plus size={16} /> Follow</>}
           </Button>
-        </div>
+        </div>}
       </div>
 
       {/* Currently Working On */}
