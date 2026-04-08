@@ -271,17 +271,23 @@ const ProfileScreen = () => {
             </p>
             <p className="text-xs text-muted-foreground">{p.course}</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={() => navigate("/growth-analytics")}>
-              <TrendingUp size={14} />
+          {isOwnProfile && !isMockProfile ? (
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={() => navigate("/growth-analytics")}>
+                <TrendingUp size={14} />
+              </Button>
+              <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={() => setShowEditModal(true)}>
+                <Edit size={14} /> Edit
+              </Button>
+              <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={handleLogout}>
+                <LogOut size={14} />
+              </Button>
+            </div>
+          ) : (
+            <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={() => navigate(-1)}>
+              Back
             </Button>
-            <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={() => setShowEditModal(true)}>
-              <Edit size={14} /> Edit
-            </Button>
-            <Button variant="outline" size="sm" className="rounded-full gap-1.5" onClick={handleLogout}>
-              <LogOut size={14} />
-            </Button>
-          </div>
+          )}
         </div>
         <p className="mt-2 text-sm text-foreground leading-relaxed">{p.bio}</p>
 
