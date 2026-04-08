@@ -45,6 +45,7 @@ interface ProfileData {
 
 const ProfileScreen = () => {
   const navigate = useNavigate();
+  const { userId: routeUserId } = useParams<{ userId: string }>();
   const { user, loading: authLoading, signOut } = useAuth();
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -52,6 +53,11 @@ const ProfileScreen = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [serviceRequests, setServiceRequests] = useState<Record<number, "none" | "requested" | "accepted" | "completed">>({});
   const [profileLoading, setProfileLoading] = useState(true);
+
+  // Determine if viewing a mock user (from service cards) or a real DB user
+  const mockUser = routeUserId ? mockServices.find(s => s.id === Number(routeUserId)) : null;
+  const isOwnProfile = !routeUserId || (user && routeUserId === user.id);
+  const isMockProfile = !!mockUser;
 
   const [profile, setProfile] = useState<ProfileData>({
     name: "",
@@ -72,15 +78,35 @@ const ProfileScreen = () => {
     }
   }, [authLoading, user, navigate]);
 
-  // Fetch profile from DB
+  // Fetch profile data
   useEffect(() => {
     if (!user) return;
+
+    // If viewing a mock service card user
+    if (isMockProfile && mockUser) {
+      setProfile({
+        name: mockUser.name,
+        college: mockUser.college,
+        course: "",
+        avatar: mockUser.avatar,
+        bio: mockUser.description,
+        passionTags: [mockUser.service],
+        currentlyWorkingOn: "",
+        personalDescription: mockUser.description,
+        skills: [mockUser.service],
+      });
+      setProfileLoading(false);
+      return;
+    }
+
+    // Fetch real profile from DB (own profile or another real user)
+    const targetUserId = isOwnProfile ? user.id : routeUserId!;
     const fetchProfile = async () => {
       setProfileLoading(true);
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", targetUserId)
         .maybeSingle();
 
       if (error) {
@@ -89,8 +115,8 @@ const ProfileScreen = () => {
         return;
       }
 
-      if (!data) {
-        // Fallback: create profile if it doesn't exist
+      if (!data && isOwnProfile) {
+        // Fallback: create profile if it doesn't exist (own profile only)
         const { data: created, error: createError } = await supabase
           .from("profiles")
           .insert({ user_id: user.id, full_name: user.user_metadata?.full_name || "" })
@@ -102,6 +128,10 @@ const ProfileScreen = () => {
           return;
         }
         mapDbToState(created);
+      } else if (!data) {
+        toast.error("User not found");
+        setProfileLoading(false);
+        return;
       } else {
         mapDbToState(data);
       }
@@ -113,7 +143,7 @@ const ProfileScreen = () => {
         name: row.full_name || "",
         college: row.college || "",
         course: row.course || "",
-        avatar: row.avatar_url || `https://i.pravatar.cc/150?u=${user!.id}`,
+        avatar: row.avatar_url || `https://i.pravatar.cc/150?u=${row.user_id}`,
         bio: row.bio || "",
         passionTags: row.passion_tags || [],
         currentlyWorkingOn: row.currently_working_on || "",
@@ -123,7 +153,7 @@ const ProfileScreen = () => {
     };
 
     fetchProfile();
-  }, [user]);
+  }, [user, routeUserId]);
 
   const handleLogout = async () => {
     await signOut();
